@@ -20,18 +20,22 @@ class AuthController extends GetxController {
   // Mock Authentication Methods
   Future<void> loginWithEmail() async {
     isLoading.value = true;
-    await Future.delayed(const Duration(seconds: 2)); // Simulate network request
+    await Future.delayed(
+      const Duration(seconds: 2),
+    ); // Simulate network request
     isLoading.value = false;
-    
+
     // Navigate to Home
     Get.offAllNamed(Routes.HOME);
   }
 
   Future<void> signUpWithEmail() async {
     isLoading.value = true;
-    await Future.delayed(const Duration(seconds: 2)); // Simulate network request
+    await Future.delayed(
+      const Duration(seconds: 2),
+    ); // Simulate network request
     isLoading.value = false;
-    
+
     Get.offAllNamed(Routes.HOME);
   }
 

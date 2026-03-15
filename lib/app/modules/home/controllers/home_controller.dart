@@ -11,7 +11,7 @@ class HomeController extends GetxController {
   final userName = 'Aniket'.obs; // Mock for now
   final currentStreak = 3.obs;
   final recentEntries = <MoodEntry>[].obs;
-  
+
   // Today's Check-in
   final hasCheckedInToday = false.obs;
   final todayMoodEmoji = '😐'.obs;
@@ -27,17 +27,20 @@ class HomeController extends GetxController {
 
   void loadDashboardData() {
     final allEntries = _storage.moodBox.values.toList();
-    
+
     // Sort by date descending
     allEntries.sort((a, b) => b.date.compareTo(a.date));
-    
+
     // Take recent 5
     recentEntries.value = allEntries.take(5).toList();
 
     // Check if there's an entry for today
     final now = DateTime.now();
-    final todayEntry = allEntries.firstWhereOrNull((e) => 
-      e.date.year == now.year && e.date.month == now.month && e.date.day == now.day
+    final todayEntry = allEntries.firstWhereOrNull(
+      (e) =>
+          e.date.year == now.year &&
+          e.date.month == now.month &&
+          e.date.day == now.day,
     );
 
     if (todayEntry != null) {
@@ -47,22 +50,31 @@ class HomeController extends GetxController {
     } else {
       hasCheckedInToday.value = false;
     }
-    
+
     // Calculate streak (basic mock logic or real calculation)
     _calculateStreak(allEntries);
   }
 
   String _getEmoji(String emotion) {
     switch (emotion) {
-      case 'Happy': return '😊';
-      case 'Calm': return '😌';
-      case 'Energetic': return '⚡';
-      case 'Grateful': return '🌻';
-      case 'Sad': return '😢';
-      case 'Anxious': return '😰';
-      case 'Angry': return '😡';
-      case 'Stressed': return '😫';
-      default: return '😐';
+      case 'Happy':
+        return '😊';
+      case 'Calm':
+        return '😌';
+      case 'Energetic':
+        return '⚡';
+      case 'Grateful':
+        return '🌻';
+      case 'Sad':
+        return '😢';
+      case 'Anxious':
+        return '😰';
+      case 'Angry':
+        return '😡';
+      case 'Stressed':
+        return '😫';
+      default:
+        return '😐';
     }
   }
 
@@ -72,7 +84,7 @@ class HomeController extends GetxController {
       return;
     }
     // Basic mock streak, real implementation would count consecutive days
-    currentStreak.value = entries.length; 
+    currentStreak.value = entries.length;
   }
 
   void goToMoodLogging() {

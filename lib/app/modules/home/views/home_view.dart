@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/animation_utils.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/home_controller.dart';
 
@@ -15,12 +16,14 @@ class HomeView extends GetView<HomeController> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Obx(() => Text(
-          'Hi, ${controller.userName.value} 👋',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
+        title: Obx(
+          () => Text(
+            'Hi, ${controller.userName.value} 👋',
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
-        )),
+        ),
         actions: [
           IconButton(
             onPressed: controller.goToSettings,
@@ -36,101 +39,127 @@ class HomeView extends GetView<HomeController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header & Streak
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Obx(() => Text(
-                        'Hello, ${controller.userName.value} 👋',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 24),
-                      )),
-                      const SizedBox(height: 4),
-                      Text(
-                        DateFormat('EEEE, MMMM d').format(DateTime.now()),
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
-                  _buildStreakBadge(context),
-                ],
+              FadeInSlide(
+                duration: const Duration(milliseconds: 600),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Obx(
+                          () => Text(
+                            'Hello, ${controller.userName.value} 👋',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleLarge?.copyWith(fontSize: 24),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          DateFormat('EEEE, MMMM d').format(DateTime.now()),
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                    ScaleButton(
+                      onTap: () {}, // Optional action for the badge
+                      child: _buildStreakBadge(context),
+                    ),
+                  ],
+                ),
               ),
-              
+
               const SizedBox(height: 32),
 
               // Today's Check-in Card
-              _buildTodayCard(context),
+              FadeInSlide(
+                delay: const Duration(milliseconds: 100),
+                child: _buildTodayCard(context),
+              ),
 
               const SizedBox(height: 32),
 
               // Quick Actions
-              Text(
-                'Explore',
-                style: Theme.of(context).textTheme.titleLarge,
+              FadeInSlide(
+                delay: const Duration(milliseconds: 200),
+                child: Text(
+                  'Explore',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ),
               const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildActionCard(
-                      context,
-                      icon: Icons.calendar_month,
-                      title: 'Calendar',
-                      color: AppColors.moodCalm,
-                      onTap: controller.goToCalendar,
+              FadeInSlide(
+                delay: const Duration(milliseconds: 300),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _buildActionCard(
+                        context,
+                        icon: Icons.calendar_month,
+                        title: 'Calendar',
+                        color: AppColors.moodCalm,
+                        onTap: controller.goToCalendar,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildActionCard(
-                      context,
-                      icon: Icons.bar_chart,
-                      title: 'Insights',
-                      color: AppColors.moodGrateful,
-                      onTap: controller.goToStatistics,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildActionCard(
+                        context,
+                        icon: Icons.bar_chart,
+                        title: 'Insights',
+                        color: AppColors.moodGrateful,
+                        onTap: controller.goToStatistics,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
 
               const SizedBox(height: 32),
 
               // Recent Entries
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Recent Entries',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  TextButton(
-                    onPressed: controller.goToJournal,
-                    child: const Text('View All'),
-                  ),
-                ],
+              FadeInSlide(
+                delay: const Duration(milliseconds: 400),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Recent Entries',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    TextButton(
+                      onPressed: controller.goToJournal,
+                      child: const Text('View All'),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
-              Obx(() {
-                if (controller.recentEntries.isEmpty) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(32.0),
-                      child: Text('No entries yet. Start tracking!'),
-                    ),
+              FadeInSlide(
+                delay: const Duration(milliseconds: 500),
+                child: Obx(() {
+                  if (controller.recentEntries.isEmpty) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(32.0),
+                        child: Text('No entries yet. Start tracking!'),
+                      ),
+                    );
+                  }
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: controller.recentEntries.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final entry = controller.recentEntries[index];
+                      return _buildEntryCard(context, entry);
+                    },
                   );
-                }
-                return ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: controller.recentEntries.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final entry = controller.recentEntries[index];
-                    return _buildEntryCard(context, entry);
-                  },
-                );
-              }),
+                }),
+              ),
             ],
           ),
         ),
@@ -139,7 +168,10 @@ class HomeView extends GetView<HomeController> {
         onPressed: controller.goToMoodLogging,
         backgroundColor: AppColors.primary,
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Track Mood', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        label: const Text(
+          'Track Mood',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
@@ -155,27 +187,38 @@ class HomeView extends GetView<HomeController> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.local_fire_department, color: AppColors.moodIrritated, size: 20),
+          const Icon(
+            Icons.local_fire_department,
+            color: AppColors.moodIrritated,
+            size: 20,
+          ),
           const SizedBox(width: 4),
-          Obx(() => Text(
-            '${controller.currentStreak.value} Days',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimaryLight, // Might need adapting for dark mode
-            ).copyWith(color: Theme.of(context).colorScheme.onBackground),
-          )),
+          Obx(
+            () => Text(
+              '${controller.currentStreak.value} Days',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: AppColors
+                    .textPrimaryLight, // Might need adapting for dark mode
+              ).copyWith(color: Theme.of(context).colorScheme.onBackground),
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildTodayCard(BuildContext context) {
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.primary, Color(0xFF8A84FF)],
+        gradient: LinearGradient(
+          colors: controller.hasCheckedInToday.value
+              ? [AppColors.primary, const Color(0xFF8A84FF)]
+              : [const Color(0xFF6C63FF), const Color(0xFF483D8B)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -194,18 +237,32 @@ class HomeView extends GetView<HomeController> {
             children: [
               const Text(
                 'How are you feeling today?',
-                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: controller.goToMoodLogging,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppColors.primary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+              ScaleButton(
+                onTap: controller.goToMoodLogging,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Text(
+                    'Log Mood Now',
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-                child: const Text('Log Mood Now'),
               ),
             ],
           );
@@ -214,17 +271,34 @@ class HomeView extends GetView<HomeController> {
             children: [
               Text(
                 'Your Mood Today',
-                style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 14),
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.9),
+                  fontSize: 14,
+                ),
               ),
               const SizedBox(height: 12),
-              Text(
-                controller.todayMoodEmoji.value,
-                style: const TextStyle(fontSize: 48),
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: 1.0),
+                duration: const Duration(milliseconds: 800),
+                curve: Curves.elasticOut,
+                builder: (context, value, child) {
+                  return Transform.scale(
+                    scale: value,
+                    child: Text(
+                      controller.todayMoodEmoji.value,
+                      style: const TextStyle(fontSize: 48),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 8),
               Text(
                 controller.todayMoodText.value,
-                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           );
@@ -233,10 +307,15 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildActionCard(BuildContext context, {required IconData icon, required String title, required Color color, required VoidCallback onTap}) {
-    return InkWell(
+  Widget _buildActionCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return ScaleButton(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -269,7 +348,7 @@ class HomeView extends GetView<HomeController> {
       if (emotion == 'Calm') return '😌';
       return '😐';
     }
-    
+
     Color getMoodColor(String emotion) {
       if (emotion == 'Happy') return AppColors.moodHappy;
       if (emotion == 'Calm') return AppColors.moodCalm;
@@ -289,7 +368,10 @@ class HomeView extends GetView<HomeController> {
                 shape: BoxShape.circle,
               ),
               child: Center(
-                child: Text(getEmoji(entry.emotion), style: const TextStyle(fontSize: 24)),
+                child: Text(
+                  getEmoji(entry.emotion),
+                  style: const TextStyle(fontSize: 24),
+                ),
               ),
             ),
             const SizedBox(width: 16),
@@ -297,18 +379,34 @@ class HomeView extends GetView<HomeController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(entry.emotion, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(
+                    entry.emotion,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   Wrap(
                     spacing: 4,
-                    children: entry.tags.map<Widget>((tag) => Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.background,
-                            borderRadius: BorderRadius.circular(4),
+                    children: entry.tags
+                        .map<Widget>(
+                          (tag) => Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.background,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              tag,
+                              style: const TextStyle(fontSize: 10),
+                            ),
                           ),
-                          child: Text(tag, style: const TextStyle(fontSize: 10)),
-                        )).toList(),
+                        )
+                        .toList(),
                   ),
                 ],
               ),
