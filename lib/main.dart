@@ -13,7 +13,7 @@ void main() async {
   await Get.putAsync(() => StorageService().init());
 
   // Initialize API Provider
-  await Get.putAsync(() => ApiProvider().init());
+  await Get.putAsync(() => ApiProviders().init());
 
   runApp(
     GetMaterialApp(

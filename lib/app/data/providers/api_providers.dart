@@ -3,14 +3,18 @@ import 'package:get/get.dart' hide Response;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import '../../core/constants/api_constants.dart';
+import '../services/storage_service.dart';
 
-class ApiProvider extends GetxService {
+class ApiProviders extends GetxService {
+  static ApiProviders? _instance;
+  ApiProviders._internal();
+
   late Dio _dio;
   final Connectivity _connectivity = Connectivity();
 
-  static ApiProvider get to => Get.find();
+  static ApiProviders get to => Get.find();
 
-  Future<ApiProvider> init() async {
+  Future<ApiProviders> init() async {
     _dio = Dio(
       BaseOptions(
         baseUrl: ApiConstants.fullBaseUrl,
@@ -34,11 +38,38 @@ class ApiProvider extends GetxService {
     return this;
   }
 
+  factory ApiProviders() {
+    _instance ??= ApiProviders._internal();
+    return _instance!;
+  }
+
   void _addInterceptors() {
     _dio.interceptors.add(
       InterceptorsWrapper(
-        onRequest: (options, handler) {
-          // Add auth token if needed
+        onRequest: (options, handler) async {
+          // Check connectivity
+          if (!await _checkConnectivity()) {
+            return handler.reject(
+              DioException(
+                requestOptions: options,
+                error: 'No Internet Connection',
+                type: DioExceptionType.connectionError,
+              ),
+            );
+          }
+
+          // Add auth token if available
+          final token = StorageService.to.getToken();
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+
+          // Add Language Headers
+          final langCode = StorageService.to.getLanguage();
+          if (langCode != null && langCode.isNotEmpty) {
+            options.headers['Accept-Language'] = langCode;
+          }
+
           return handler.next(options);
         },
         onResponse: (response, handler) {
@@ -46,6 +77,7 @@ class ApiProvider extends GetxService {
         },
         onError: (DioException e, handler) {
           if (e.response?.statusCode == 401) {
+            StorageService.to.removeToken();
             // Handle token expiration / unauthorized
             // e.g., Get.offAllNamed(Routes.LOGIN);
           }
@@ -76,13 +108,6 @@ class ApiProvider extends GetxService {
     CancelToken? cancelToken,
   }) async {
     try {
-      if (!await _checkConnectivity()) {
-        throw DioException(
-          requestOptions: RequestOptions(path: path),
-          error: 'No Internet Connection',
-          type: DioExceptionType.connectionError,
-        );
-      }
       final response = await _dio.get(
         path,
         queryParameters: queryParameters,
@@ -104,13 +129,6 @@ class ApiProvider extends GetxService {
     CancelToken? cancelToken,
   }) async {
     try {
-      if (!await _checkConnectivity()) {
-        throw DioException(
-          requestOptions: RequestOptions(path: path),
-          error: 'No Internet Connection',
-          type: DioExceptionType.connectionError,
-        );
-      }
       final response = await _dio.post(
         path,
         data: data,
@@ -133,13 +151,6 @@ class ApiProvider extends GetxService {
     CancelToken? cancelToken,
   }) async {
     try {
-      if (!await _checkConnectivity()) {
-        throw DioException(
-          requestOptions: RequestOptions(path: path),
-          error: 'No Internet Connection',
-          type: DioExceptionType.connectionError,
-        );
-      }
       final response = await _dio.put(
         path,
         data: data,
@@ -162,13 +173,6 @@ class ApiProvider extends GetxService {
     CancelToken? cancelToken,
   }) async {
     try {
-      if (!await _checkConnectivity()) {
-        throw DioException(
-          requestOptions: RequestOptions(path: path),
-          error: 'No Internet Connection',
-          type: DioExceptionType.connectionError,
-        );
-      }
       final response = await _dio.delete(
         path,
         data: data,
